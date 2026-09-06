@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, AlertCircle, BookOpen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { sendChatMessage } from './services/api';
 import type { ChatResponse } from './services/api';
 
@@ -68,7 +69,7 @@ function App() {
     <div className="app-shell">
       <main className="chat-shell">
         <header className="chat-header">
-          <BookOpen size={22} className="logo-icon" color="var(--color-primary)" />
+          <img src="/logo-chatbot.png" alt="Logo Chatbot" className="logo-icon" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
           <div>
             <h1>Chatbot Jaringan Komputer</h1>
             <p>Asisten Belajar Mahasiswa Teknik Informatika</p>
@@ -113,7 +114,7 @@ function App() {
                       {msg.type === 'user' ? (
                         msg.content
                       ) : (
-                        <ReactMarkdown>{msg.content || ''}</ReactMarkdown>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content || ''}</ReactMarkdown>
                       )}
                       
                       {msg.retrieval?.sources?.length > 0 && (
