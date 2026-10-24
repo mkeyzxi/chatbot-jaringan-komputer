@@ -15,14 +15,16 @@ export interface ChatResponse {
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
-export async function sendChatMessage(message: string): Promise<ChatResponse> {
+export type ChatMode = "cepat" | "berpikir";
+
+export async function sendChatMessage(message: string, mode: ChatMode = "berpikir"): Promise<ChatResponse> {
   try {
     const response = await fetch(`${API_URL}/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ question: message }),
+      body: JSON.stringify({ question: message, mode }),
     });
 
     if (!response.ok) {
