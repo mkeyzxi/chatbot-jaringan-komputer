@@ -1,18 +1,19 @@
-from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
+import os
+from typing import Literal
+
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
+
 from app.core.config import settings
+
+
+ModeType = Literal["cepat", "berpikir"]
+
 
 class LLMService:
     def __init__(self):
-        # Pass GROQ_API_KEY explicitly from settings
-        self.llm = ChatGroq(
-            model=settings.llm_model,
-            temperature=settings.llm_temperature,
-            groq_api_key=settings.groq_api_key,
-            model_kwargs={"top_p": settings.llm_top_p}
-        )
-        
         self.system_instruction = """Anda adalah chatbot pembelajaran untuk mata kuliah Jaringan Komputer.
 
 Tugas Anda adalah membantu mahasiswa memahami materi berdasarkan
@@ -33,16 +34,65 @@ ATURAN UTAMA:
             ("system", self.system_instruction),
             ("user", "[CONTEXT]\n{retrieved_context}\n\n[USER QUESTION]\n{query}\n\n[INSTRUCTION]\nJawab pertanyaan pengguna hanya dengan memanfaatkan konteks yang tersedia.\nJika informasi tidak ditemukan atau tidak cukup, nyatakan keterbatasannya.")
         ])
-        
-        self.chain = self.prompt_template | self.llm | StrOutputParser()
 
-    def generate_answer(self, query: str, context: str) -> str:
+        self.default_chain = self._build_chain_for_mode(settings.default_llm_mode)
+
+    def _get_api_key_for_mode(self, mode: ModeType) -> str:
+        if mode == "cepat":
+            return settings.groq_api_key or os.getenv("GROQ_API_KEY") or ""
+        return settings.google_api_key or settings.gemini_api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY") or ""
+
+    def _get_model_for_mode(self, mode: ModeType) -> str:
+        if mode == "cepat":
+            return settings.fast_llm_model or "openai/gpt-oss-120b"
+        return settings.thinking_llm_model or settings.llm_model or "gemini-2.0-flash"
+
+    def _get_provider_for_mode(self, mode: ModeType) -> str:
+        if mode == "cepat":
+            return settings.fast_llm_provider or "groq"
+        return settings.thinking_llm_provider or settings.llm_provider or "gemini"
+
+    def _build_chain_for_mode(self, mode: ModeType):
+        provider = self._get_provider_for_mode(mode)
+        api_key = self._get_api_key_for_mode(mode)
+        model_name = self._get_model_for_mode(mode)
+
+        if provider == "groq":
+            if not api_key:
+                raise ValueError("API key Groq belum diatur. Isi GROQ_API_KEY di file .env.")
+            llm = ChatOpenAI(
+                model=model_name,
+                api_key=api_key,
+                base_url="https://api.groq.com/openai/v1",
+                temperature=settings.llm_temperature,
+                top_p=settings.llm_top_p,
+            )
+        else:
+            if not api_key:
+                raise ValueError(
+                    "API key Gemini belum diatur. Isi GOOGLE_API_KEY atau GEMINI_API_KEY di file .env."
+                )
+            llm = ChatGoogleGenerativeAI(
+                model=model_name,
+                google_api_key=api_key,
+                temperature=settings.llm_temperature,
+                top_p=settings.llm_top_p,
+            )
+
+        return self.prompt_template | llm | StrOutputParser()
+
+    def _get_chain_for_mode(self, mode: ModeType):
+        return self._build_chain_for_mode(mode)
+
+    def generate_answer(self, query: str, context: str, mode: ModeType = None) -> str:
         """Generate answer using LLM based on retrieved context."""
-        response = self.chain.invoke({
-            "retrieved_context": context,
+        current_mode = mode or settings.default_llm_mode
+        chain = self._get_chain_for_mode(current_mode)
+        response = chain.invoke({
             "query": query
         })
         return response
+
 
 # Singleton instance
 llm_service = LLMService()

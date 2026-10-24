@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, AlertCircle, BookOpen } from 'lucide-react';
+import { Send, Bot, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { sendChatMessage } from './services/api';
-import type { ChatResponse } from './services/api';
+import type { ChatResponse, ChatMode } from './services/api';
 
 interface Message {
   id: string;
@@ -16,6 +16,7 @@ interface Message {
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+  const [selectedMode, setSelectedMode] = useState<ChatMode>('berpikir');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -42,8 +43,8 @@ function App() {
     setIsLoading(true);
 
     try {
-      const response = await sendChatMessage(userMessage.content);
-      
+      const response = await sendChatMessage(userMessage.content, selectedMode);
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
@@ -117,7 +118,7 @@ function App() {
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content || ''}</ReactMarkdown>
                       )}
                       
-                      {msg.retrieval?.sources?.length > 0 && (
+                      {msg.retrieval && msg.retrieval.sources && msg.retrieval.sources.length > 0 && (
                         <div className="sources-container">
                           <div className="sources-title">
                             <span>Sumber Konteks</span>
@@ -163,15 +164,27 @@ function App() {
         <footer className="composer-area">
           <div className="composer-wrapper">
             <form onSubmit={handleSubmit} className="composer">
+              <div className="mode-selector-wrap">
+                <select
+                  value={selectedMode}
+                  onChange={(e) => setSelectedMode(e.target.value as ChatMode)}
+                  className="mode-selector"
+                  aria-label="Pilih mode jawaban"
+                  disabled={isLoading}
+                >
+                  <option value="cepat">⚡ Cepat</option>
+                  <option value="berpikir">🧠 Berpikir</option>
+                </select>
+              </div>
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Tanyakan materi Jaringan Komputer..."
+                placeholder={selectedMode === 'cepat' ? 'Tanyakan dengan mode cepat...' : 'Tanyakan dengan mode berpikir...'}
                 disabled={isLoading}
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={!input.trim() || isLoading}
                 className="send-button"
               >
