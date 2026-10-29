@@ -6,6 +6,11 @@ import time
 
 router = APIRouter()
 
+@router.get("", include_in_schema=False)
+@router.get("/", include_in_schema=False)
+async def api_root():
+    return {"status": "ok", "message": "Chatbot API is running", "endpoints": ["/api/chat", "/api/health"]}
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
     start_time = time.time()
@@ -48,4 +53,8 @@ async def chat_endpoint(request: ChatRequest):
 
 @router.get("/health")
 async def health_check():
+    return {"status": "ok", "message": "Chatbot RAG API is healthy"}
+
+@router.get("/status", include_in_schema=False)
+async def status_check():
     return {"status": "ok", "message": "Chatbot RAG API is healthy"}

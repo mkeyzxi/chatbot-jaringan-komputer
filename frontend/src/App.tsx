@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, AlertCircle } from 'lucide-react';
+import { Send, Bot, AlertCircle, MessageSquareText, Sparkles, BrainCircuit } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { sendChatMessage } from './services/api';
@@ -165,6 +165,11 @@ function App() {
           <div className="composer-wrapper">
             <form onSubmit={handleSubmit} className="composer">
               <div className="mode-selector-wrap">
+                {selectedMode === 'cepat' ? (
+                  <Sparkles size={16} className="mode-selector-icon" />
+                ) : (
+                  <BrainCircuit size={16} className="mode-selector-icon" />
+                )}
                 <select
                   value={selectedMode}
                   onChange={(e) => setSelectedMode(e.target.value as ChatMode)}
@@ -172,24 +177,31 @@ function App() {
                   aria-label="Pilih mode jawaban"
                   disabled={isLoading}
                 >
-                  <option value="cepat">⚡ Cepat</option>
-                  <option value="berpikir">🧠 Berpikir</option>
+                  <option value="cepat">Cepat</option>
+                  <option value="berpikir">Berpikir</option>
                 </select>
               </div>
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={selectedMode === 'cepat' ? 'Tanyakan dengan mode cepat...' : 'Tanyakan dengan mode berpikir...'}
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="send-button"
-              >
-                <Send size={18} />
-              </button>
+
+              <div className="composer-input-wrap">
+                <div className="input-prefix" aria-hidden="true">
+                  <MessageSquareText size={18} />
+                </div>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={selectedMode === 'cepat' ? 'Tanyakan dengan mode cepat...' : 'Tanyakan dengan mode berpikir...'}
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="send-button"
+                  aria-label="Kirim pesan"
+                >
+                  <Send size={18} />
+                </button>
+              </div>
             </form>
             <div className="disclaimer">
               Chatbot dapat membuat kesalahan. Jadikan sebagai pendamping belajar, bukan sumber tunggal.

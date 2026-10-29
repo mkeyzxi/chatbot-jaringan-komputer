@@ -1,152 +1,333 @@
-# Chatbot Jaringan Komputer 🤖🌐
+# Chatbot Jaringan Komputer
 
-Proyek ini adalah sistem Chatbot berbasis *Retrieval-Augmented Generation (RAG)* yang dirancang untuk menjawab pertanyaan terkait jaringan komputer, komunikasi nirkabel, dan materi terkait lainnya. Chatbot ini dibangun dengan **FastAPI** di sisi backend dan **React + Vite** di sisi frontend, serta menggunakan **ChromaDB** sebagai basis data vektor untuk penyimpanan dokumen.
+Chatbot Jaringan Komputer adalah aplikasi berbasis Retrieval-Augmented Generation (RAG) untuk menjawab pertanyaan seputar materi jaringan komputer dengan pendekatan kontekstual. Aplikasi ini menggunakan FastAPI di backend, React + Vite di frontend, dan ChromaDB untuk penyimpanan vektor dokumen.
 
-## 🚀 Fitur Utama
+## Fitur utama
 
-- **Tanya Jawab Pintar**: Chatbot dapat memberikan jawaban spesifik berdasarkan modul/dokumen (PDF, PPTX) seputar Jaringan Komputer.
-- **RAG Architecture**: Menggabungkan kemampuan pencarian (*retrieval*) dari dokumen dan pembuatan teks (*generation*) menggunakan *Large Language Model* (LLM) melalui **Groq API**.
-- **Modern UI/UX**: Tampilan chat interaktif, bersih, dan responsif menggunakan React dan Vite.
-- **Pemrosesan Dokumen Otomatis**: Skrip *ingest* yang otomatis mengubah dokumen-dokumen materi menjadi vektor (*embedding*) di ChromaDB.
+- Chat interaktif berbasis web
+- RAG menggunakan dokumen pembelajaran sebagai konteks utama
+- Pencarian semantik dengan ChromaDB
+- Integrasi LLM dengan provider Gemini dan Groq
+- Frontend responsif menggunakan React + Vite
+- Dokumentasi API otomatis via Swagger / OpenAPI
 
----
-
-## 🛠️ Tech Stack (Teknologi yang Digunakan)
+## Tech stack
 
 ### Backend
-- **Framework**: [FastAPI](https://fastapi.tiangolo.com/)
-- **Server**: Uvicorn
-- **AI / LLM Orchestration**: [LangChain](https://python.langchain.com/)
-- **LLM Provider**: Groq (Via `langchain-groq`)
-- **Embeddings**: HuggingFace (`intfloat/multilingual-e5-small`)
-- **Vector Database**: [ChromaDB](https://www.trychroma.com/)
-- **Konfigurasi**: Pydantic Settings
+- Python 3.11+
+- FastAPI
+- Uvicorn
+- LangChain
+- LangChain Google GenAI
+- LangChain OpenAI-compatible client
+- ChromaDB
+- Hugging Face Embeddings
+- Pydantic + Pydantic Settings
 
 ### Frontend
-- **Framework**: [React 19](https://react.dev/) + [Vite](https://vitejs.dev/)
-- **Bahasa**: TypeScript
-- **Styling**: CSS Vanilla (Responsive & Modern)
-- **Icons**: Lucide React
-- **Markdown Parsing**: React-Markdown
+- React 19
+- Vite
+- TypeScript
+- CSS custom
+- Lucide React
+- React Markdown + GFM
 
----
-
-## 📁 Struktur Proyek
+## Struktur proyek
 
 ```text
 chatbot-jaringan/
-│
-├── backend/                  # Kode Backend (Python)
-│   ├── app/                  # Logika Utama FastAPI & LangChain
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── generation/
+│   │   ├── retrieval/
+│   │   └── schemas/
 │   ├── data/
-│   │   ├── chroma/           # Direktori penyimpanan vektor ChromaDB
-│   │   └── documents/        # Kumpulan file sumber (PDF/PPTX) untuk Chatbot
+│   │   ├── chroma/
+│   │   └── documents/
 │   ├── scripts/
-│   │   └── ingest.py         # Skrip untuk memasukkan dokumen ke ChromaDB
-│   ├── .env                  # File variabel lingkungan backend (TIDAK di-commit)
-│   └── requirements.txt      # Daftar dependensi Python
-│
-├── frontend/                 # Kode Frontend (Node.js/React)
-│   ├── src/                  # Kode komponen UI React & TypeScript
-│   ├── public/               # File aset statis
-│   ├── package.json          # Daftar dependensi & script Node
-│   └── vite.config.ts        # Konfigurasi Vite
-│
-├── .gitignore                # File ignore Git
-├── DESIGNKU.md               # Dokumen rancangan desain sistem
-├── PRD.md                    # Product Requirements Document
-└── README.md                 # Dokumentasi ini
+│   │   └── ingest.py
+│   ├── .env
+│   ├── requirements.txt
+│   └── venv/
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── .env
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.*
+├── DESIGNKU.md
+├── PRD.md
+├── README.md
+└── .gitignore
 ```
 
----
+## Persyaratan sistem
 
-## ⚙️ Persyaratan Sistem (Prerequisites)
+Sebelum mulai, pastikan sudah terinstal:
 
-Pastikan Anda sudah menginstal aplikasi berikut di komputer Anda:
-1. **Python** (Versi 3.8 atau lebih baru)
-2. **Node.js** (Versi 18 atau lebih baru) & **npm**
-3. **Git**
-4. Kunci API (*API Key*) dari [Groq](https://console.groq.com/).
+- Windows 10/11
+- Git
+- Python 3.11 atau 3.12
+- Node.js 18+ dan npm
+- Anaconda / Miniconda (opsional, tapi direkomendasikan)
+- API key dari Google Gemini dan/atau Groq
 
----
+## Persiapan environment
 
-## 🚀 Cara Mulai & Menjalankan Proyek
+### Opsi 1: Menggunakan Conda
 
-Ikuti langkah-langkah di bawah ini secara berurutan untuk menjalankan aplikasi di lingkungan lokal Anda.
+Buka Anaconda Prompt atau PowerShell lalu jalankan:
 
-### 1. Konfigurasi Backend (FastAPI)
-
-Buka terminal dan arahkan ke folder `backend`:
-```bash
-cd backend
+```powershell
+conda create -n chatbot-jaringan python=3.11 -y
+conda activate chatbot-jaringan
 ```
 
-**a. Buat Virtual Environment dan Aktifkan:**
-```bash
-# Windows
+### Opsi 2: Menggunakan venv biasa di Windows
+
+```powershell
+cd C:\belajarku\Belajar Flask\chatbot-jaringan\backend
 python -m venv venv
-venv\Scripts\activate
-
-# Mac/Linux
-python3 -m venv venv
-source venv/bin/activate
+.\venv\Scripts\Activate.ps1
 ```
 
-**b. Instal Dependensi:**
-```bash
+Jika PowerShell memblokir script activation, jalankan:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+.\venv\Scripts\Activate.ps1
+```
+
+## Instalasi backend
+
+Masuk ke folder backend:
+
+```powershell
+cd C:\belajarku\Belajar Flask\chatbot-jaringan\backend
+```
+
+### Install dependency Python
+
+```powershell
 pip install -r requirements.txt
 ```
 
-**c. Konfigurasi Variabel Lingkungan (`.env`):**
-Buat file bernama `.env` di dalam folder `backend/` dan isi dengan konfigurasi berikut. Pastikan Anda memasukkan Groq API Key Anda.
+Jika ingin install satu per satu, gunakan:
+
+```powershell
+pip install fastapi uvicorn langchain langchain-community langchain-google-genai langchain-openai pypdf sentence-transformers chromadb python-dotenv pydantic pydantic-settings
+```
+
+## Konfigurasi environment backend
+
+Buat file `.env` di dalam folder `backend` seperti berikut:
 
 ```env
-# Konfigurasi LLM
-GROQ_API_KEY="masukkan_api_key_groq_anda_disini"
+APP_NAME=chatbot-jaringan-komputer
+APP_ENV=development
+APP_HOST=0.0.0.0
+APP_PORT=8000
 
-# (Opsional) Sesuaikan jika Anda mengganti model default di config.py
-# LLM_MODEL="llama3-70b-8192" 
+FRONTEND_URL=http://localhost:5173
+
+EMBEDDING_MODEL=intfloat/multilingual-e5-small
+CHUNK_SIZE=1000
+CHUNK_OVERLAP=200
+
+VECTOR_DB=chroma
+CHROMA_PERSIST_DIRECTORY=./data/chroma
+CHROMA_COLLECTION=jaringan-komputer
+RETRIEVAL_K=5
+
+DEFAULT_LLM_MODE=berpikir
+LLM_PROVIDER=gemini
+LLM_MODEL=gemini-3.8-flash
+FAST_LLM_PROVIDER=groq
+FAST_LLM_MODEL=openai/gpt-oss-120b
+THINKING_LLM_PROVIDER=gemini
+THINKING_LLM_MODEL=gemini-3.8-flash
+LLM_TEMPERATURE=0.1
+LLM_TOP_P=0.9
+
+GOOGLE_API_KEY=YOUR_GOOGLE_API_KEY
+GEMINI_API_KEY=YOUR_GOOGLE_API_KEY
+GROQ_API_KEY=YOUR_GROQ_API_KEY
 ```
 
-**d. Proses Dokumen ke dalam Database Vektor (Ingestion):**
-Sebelum menjalankan server, jalankan skrip ini agar Chatbot memiliki "pengetahuan" dari dokumen PDF/PPTX yang ada di folder `data/documents/`:
-```bash
-python scripts/ingest.py
-```
-*(Tunggu hingga proses ekstraksi teks dan pembuatan embedding selesai)*.
+Catatan:
+- Untuk mode `berpikir`, gunakan model yang tersedia di provider Google sesuai akun Anda.
+- Jangan pernah commit file `.env` ke repository publik.
+- Jika Anda memakai environment Conda, pastikan `conda activate chatbot-jaringan` sudah aktif sebelum menjalankan perintah Python.
 
-**e. Jalankan Server Backend:**
-```bash
-uvicorn app.main:app --reload
-```
-Backend sekarang berjalan di: **http://localhost:8000**
-*(Anda dapat melihat dokumentasi API interaktif di http://localhost:8000/docs)*
+## Ingest dokumen ke ChromaDB
 
----
+Sebelum chatbot bisa menjawab, dokumen harus di-ingest terlebih dahulu.
 
-### 2. Konfigurasi Frontend (React + Vite)
-
-Buka tab terminal baru dan arahkan ke folder `frontend`:
-```bash
-cd frontend
+```powershell
+cd C:\belajarku\Belajar Flask\chatbot-jaringan\backend
+python scripts\ingest.py
 ```
 
-**a. Instal Dependensi NPM:**
-```bash
+Atau jika memakai module environment:
+
+```powershell
+python -m scripts.ingest
+```
+
+Dokumen sumber biasanya berada di:
+
+```text
+backend\data\documents\
+```
+
+## Menjalankan backend
+
+### Menggunakan PowerShell / CMD biasa
+
+```powershell
+cd C:\belajarku\Belajar Flask\chatbot-jaringan\backend
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### Menggunakan Conda
+
+```powershell
+conda activate chatbot-jaringan
+cd C:\belajarku\Belajar Flask\chatbot-jaringan\backend
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Setelah server berjalan, cek:
+
+- Swagger UI: http://localhost:8000/docs
+- API root: http://localhost:8000/api
+- Health check: http://localhost:8000/api/health
+
+## Instalasi frontend
+
+Buka terminal baru, lalu jalankan:
+
+```powershell
+cd C:\belajarku\Belajar Flask\chatbot-jaringan\frontend
 npm install
 ```
 
-**b. Jalankan Server Development Frontend:**
-```bash
+## Menjalankan frontend
+
+### PowerShell
+
+```powershell
+cd C:\belajarku\Belajar Flask\chatbot-jaringan\frontend
 npm run dev
 ```
-Frontend sekarang berjalan di: **http://localhost:5173**
 
----
+### Jika Vite default port 5173 tidak terbuka
 
-## 📝 Catatan Penting
-- **Cross-Origin Resource Sharing (CORS)**: Frontend dan Backend diatur agar dapat berkomunikasi di `localhost`. Jika Anda menjalankan frontend di port yang berbeda, pastikan untuk memperbarui variabel `frontend_url` di `backend/app/core/config.py`.
-- **Database ChromaDB**: Data dari hasil _ingestion_ akan tersimpan secara lokal di folder `backend/data/chroma`. Folder ini diabaikan oleh `.gitignore` untuk mencegah repo menjadi bengkak. Apabila ada penambahan dokumen baru, pastikan menjalankan skrip `ingest.py` kembali.
+Cek apakah port sudah dipakai:
 
----
-Dibuat dengan ❤️ untuk pembelajaran Jaringan Komputer.
+```powershell
+netstat -ano | findstr :5173
+```
+
+Jika port sudah dipakai, bisa jalankan Vite di port lain:
+
+```powershell
+npm run dev -- --host 0.0.0.0 --port 4173
+```
+
+Akses frontend via:
+
+```text
+http://localhost:5173
+```
+
+## Konfigurasi frontend `.env`
+
+Buat file `.env` di folder `frontend` dengan isi:
+
+```env
+VITE_API_URL=http://localhost:8000/api
+```
+
+Jika frontend dan backend berjalan di local machine, konfigurasi ini sudah cukup.
+
+## Menjalankan seluruh aplikasi
+
+1. Aktifkan environment Python backend
+2. Jalankan backend di folder `backend`
+3. Jalankan frontend di folder `frontend`
+4. Buka browser ke `http://localhost:5173`
+
+## API endpoint yang umum dipakai
+
+- `POST /api/chat` → kirim pertanyaan ke chatbot
+- `GET /api/health` → cek status server
+- `GET /docs` → dokumentasi Swagger UI
+
+Contoh request dengan curl di PowerShell:
+
+```powershell
+curl -X POST "http://localhost:8000/api/chat" `
+  -H "Content-Type: application/json" `
+  -d '{"question":"Apa itu subnetting?","mode":"berpikir"}'
+```
+
+## Troubleshooting umum
+
+### 1. `No module named uvicorn`
+
+Pastikan environment sudah aktif dan dependency terinstal:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+### 2. `Failed to fetch` atau CORS error
+
+Pastikan backend berjalan di `http://localhost:8000` dan frontend memanggil `http://localhost:8000/api`.
+
+Cek juga file backend `app/main.py` dan `.env` supaya `FRONTEND_URL` benar.
+
+### 3. `404` saat membuka `/health`
+
+Root endpoint bukan `/health`, tetapi `/api/health` karena router backend diprefix dengan `/api`.
+
+### 4. Model LLM lama atau tidak responsif
+
+Pastikan model yang dipakai valid untuk provider yang Anda pilih. Untuk provider Gemini, cek model yang tersedia di akun Anda. Mode `berpikir` biasanya lebih lama dibanding mode `cepat` karena model lebih berat.
+
+### 5. ChromaDB tidak menemukan dokumen
+
+Jalankan ulang ingest:
+
+```powershell
+python scripts\ingest.py
+```
+
+Pastikan folder dokumen berisi file yang valid dan siap diproses.
+
+## Catatan penting
+
+- File `.env` tidak boleh di-push ke Git
+- Simpan API key di environment yang aman
+- Jika ada pembaruan struktur dokumen atau penambahan materi baru, jalankan ulang ingest
+- Untuk deployment lebih lanjut, gunakan environment variable di server production bukan file `.env` lokal
+
+## Sumber referensi proyek
+
+- [PRD.md](PRD.md)
+- [DESIGNKU.md](DESIGNKU.md)
+
+## Penutup
+
+Proyek ini siap digunakan untuk prototyping chatbot pembelajaran jaringan komputer berbasis RAG di lingkungan lokal. Jika ingin dikembangkan lebih lanjut, langkah berikutnya bisa berupa:
+
+- menambahkan streaming response ke frontend
+- menambah model mode cepat dan mode berpikir lebih jelas
+- menambah autentikasi sederhana
+- menambah upload dokumen dari UI
+
+Dibuat untuk kebutuhan pembelajaran dan eksperimen chatbot AI di bidang jaringan komputer.

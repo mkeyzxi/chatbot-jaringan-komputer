@@ -9,10 +9,12 @@ app = FastAPI(
     description="RAG Chatbot API untuk Jaringan Komputer"
 )
 
-# Set up CORS
+# Set up CORS for local frontend development.
+# This allows Vite dev server on localhost/127.0.0.1 and any common port.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url],
+    allow_origins=[settings.frontend_url, "http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
