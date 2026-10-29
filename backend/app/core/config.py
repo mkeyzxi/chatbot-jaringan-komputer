@@ -20,11 +20,11 @@ class Settings(BaseSettings):
 
     default_llm_mode: str = "berpikir"
     llm_provider: str = "gemini"
-    llm_model: str = "gemini-2.0-flash"
+    llm_model: str = "gemini-flash-latest"
     fast_llm_provider: str = "groq"
     fast_llm_model: str = "openai/gpt-oss-120b"
     thinking_llm_provider: str = "gemini"
-    thinking_llm_model: str = "gemini-2.0-flash"
+    thinking_llm_model: str = "gemini-flash-latest"
     llm_temperature: float = 0.1
     llm_top_p: float = 0.9
 
